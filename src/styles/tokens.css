@@ -1,0 +1,103 @@
+/* Design tokens. Single source of truth for colour, spacing, type and motion.
+   Dark-first: deep midnight navy glass with a soft daylight variant. */
+
+:root {
+  color-scheme: dark light;
+
+  /* Colour — midnight navy + charcoal glass. */
+  --color-bg: #050a13;
+  --color-bg-elevated: #0b1524;
+  --color-bg-sunken: #030711;
+  --color-surface: rgb(255 255 255 / 4.5%);
+  --color-surface-strong: rgb(255 255 255 / 8.5%);
+  --color-border: rgb(255 255 255 / 10%);
+  --color-border-strong: rgb(255 255 255 / 20%);
+  --color-text: #eaf2ff;
+  --color-text-muted: #a7b8cf;
+  /* Clears 4.5:1 on the midnight background at small sizes. */
+  --color-text-subtle: #92a6c0;
+  --color-accent: #8cc4ff;
+  --color-accent-strong: #5aa9ff;
+  --color-accent-contrast: #04131f;
+  --color-warm: #ffc27d;
+  --color-danger: #ff9d9d;
+  --color-danger-bg: rgb(255 122 122 / 14%);
+  --color-success: #6ee0b0;
+  --color-focus: #bcdcff;
+
+  /* Glass. Deliberately restrained: one highlight line, low-opacity borders. */
+  --glass-bg: rgb(13 24 40 / 62%);
+  --glass-bg-strong: rgb(14 27 46 / 80%);
+  --glass-border: rgb(255 255 255 / 9%);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 7%);
+  --glass-blur: 18px;
+  --glass-blur-sm: 10px;
+
+  /* Spacing scale (4px base). */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Radii. */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+
+  /* Typography. */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SFMono-Regular', ui-monospace, 'Cascadia Mono', Menlo, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-hero: clamp(3.75rem, 13vw, 6.25rem);
+
+  /* Elevation and motion. */
+  --shadow-card: 0 28px 70px rgb(1 4 10 / 55%);
+  --shadow-raised: 0 14px 34px rgb(1 4 10 / 45%);
+  --transition-fast: 140ms ease;
+  --transition-base: 240ms ease;
+
+  /* Layout. */
+  --content-max: 1180px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg: #e8eef8;
+    --color-bg-elevated: #ffffff;
+    --color-bg-sunken: #dde6f4;
+    --color-surface: rgb(10 22 38 / 3.5%);
+    --color-surface-strong: rgb(10 22 38 / 7%);
+    --color-border: rgb(10 22 38 / 11%);
+    --color-border-strong: rgb(10 22 38 / 24%);
+    --color-text: #0a1524;
+    --color-text-muted: #3f5372;
+    /* Clears 4.5:1 on the daylight background at small sizes. */
+    --color-text-subtle: #4f6383;
+    --color-accent: #0f5fbe;
+    --color-accent-strong: #0b4c9b;
+    --color-accent-contrast: #ffffff;
+    --color-focus: #0f5fbe;
+    --glass-bg: rgb(255 255 255 / 66%);
+    --glass-bg-strong: rgb(255 255 255 / 84%);
+    --glass-border: rgb(10 22 38 / 10%);
+    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 80%);
+    --shadow-card: 0 26px 60px rgb(24 44 74 / 14%);
+    --shadow-raised: 0 12px 28px rgb(24 44 74 / 10%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+  }
+}
