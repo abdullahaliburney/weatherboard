@@ -81,7 +81,15 @@ export default function SearchBar({ onSelectCity, search }: SearchBarProps) {
 
       <div className="search__field">
         <span className="search__icon" aria-hidden="true">
-          ⌕
+          <svg viewBox="0 0 24 24" fill="none" focusable="false">
+            <circle cx="11" cy="11" r="6.4" stroke="currentColor" strokeWidth="1.7" />
+            <path
+              d="m16 16 4.2 4.2"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+            />
+          </svg>
         </span>
         <input
           id="city-search"

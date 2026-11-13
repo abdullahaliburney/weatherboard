@@ -72,8 +72,10 @@ function artwork(icon: WeatherIconKey) {
     case 'partly-cloudy-night':
       return (
         <g>
-          <path d="M30 8a9 9 0 1 0 7 14A8 8 0 0 1 30 8Z" />
-          <Cloud y={4} />
+          <path d="M31 6.5a8.8 8.8 0 1 0 6.4 14.2A7.7 7.7 0 0 1 31 6.5Z" />
+          <g transform="translate(-2 8) scale(0.94)">
+            <Cloud />
+          </g>
         </g>
       )
     case 'cloudy':
