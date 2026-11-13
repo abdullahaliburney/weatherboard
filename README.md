@@ -5,13 +5,20 @@ current conditions, a 5-day forecast, up to five saved favourites, and an instal
 offline-capable PWA. The daily morning reminder was scoped (C8) but is not implemented;
 the README says so plainly rather than implying a working notification feature.
 
-> **Status: deployed and verified.** C0–C7 and C9–C11 complete; C8 (Web Push) blocked.
+The frontend was rebuilt in place as a cinematic app shell: an editorial sidebar and
+mobile drawer, a composed overview hero, refined forecast cards, a WebGL liquid
+atmosphere that follows the real weather snapshot, and honest About, Privacy and Terms
+pages. The API, Worker, providers, PWA, storage and test contracts were preserved.
+
+> **Status: liquid release deployed and verified.** C0–C7 and C9–C14 complete; C8
+> (Web Push) blocked.
 >
 > **Live app:** https://site-6950d0e66c3045dcaf9775b88d7b4242.freebuff.page
 > **Repository:** https://github.com/abdullahaliburney/weatherboard
 >
-> The live URL was opened in a real browser and verified (weather, search, favourites,
-> PWA, offline). Background push remains unimplemented — see *Push reminders (C8)*.
+> The production URL was opened in a fresh browser session on 13 November 2026 and
+> verified against the live edge API (weather, search, favourites, units, forecast and
+> PWA). Background push remains unimplemented — see *Push reminders (C8)*.
 > Working today: debounced autocomplete through the Worker, keyboard and pointer selection,
 > a cinematic weather dashboard with a condition-driven atmosphere, a 5-day forecast,
 > metric/imperial units and refresh, up to five persisted favourites, persisted unit and
@@ -33,7 +40,7 @@ the README says so plainly rather than implying a working notification feature.
 | Lint | Oxlint | Shipped with the Vite template, no plugin archaeology |
 | Tests | Vitest + Testing Library (jsdom) | Unit tests for pure logic and hooks |
 | Styles | Plain CSS with design tokens | No preprocessor/build step to justify |
-| PWA | `vite-plugin-pwa` (Workbox) — planned C7 | Manifest, precache, runtime caching |
+| PWA | Versioned service worker + small Vite precache plugin | Manifest, precache, runtime caching without a Workbox dependency |
 | API access | Edge Worker proxy (C1) | Keeps provider keys out of the browser bundle |
 
 ## Getting started
@@ -209,9 +216,9 @@ frontend — components only read the snapshot, and the frontend types in
 Accessibility and layout: the search field stays visible above the dashboard, the
 selected city is the dashboard heading, updates are announced through a polite live
 region, and the forecast is an ordered list with visually hidden *High*, *Low* and
-*Chance of precipitation* labels. The forecast is two columns at 375 px, five from
-768 px; the current-conditions block becomes two columns from 768 px. Colours come only
-from the existing tokens, so light and dark themes follow `prefers-color-scheme`.
+*Chance of precipitation* labels. Rows become five editorial cards from 768 px; the
+current-conditions block becomes two columns from 768 px. Colours come only from the
+existing tokens, so light and dark themes follow `prefers-color-scheme`.
 
 ## Favourites and preferences (C5)
 
@@ -264,20 +271,34 @@ is what matters — there is no custom install button pretending to be one.
 
 ## Visual identity
 
-The interface is designed from the written brief (premium, minimal, cinematic, atmospheric).
+The interface follows the written brief (premium, minimal, cinematic, atmospheric).
 The reference image was not present in this chat's workspace, so nothing was copied from it.
 
+*Release screenshots were captured at 375, 768 and 1280 px during verification and are
+listed in the delivery report rather than embedded here.*
+
+- **App shell:** a sticky editorial sidebar from 1280 px (brand mark, route navigation,
+  selected-city card and a short data note), an off-canvas drawer with a close control
+  below 1100 px, and a compact topbar with the page title, date and unit switch. A single
+  footer carries the copyright, route links and a plain-language data disclaimer.
+- **Overview:** a briefing line and greeting sit next to city search and saved cities; the
+  hero then composes city, local time, temperature, condition, atmosphere icon and four
+  supporting metrics. Forecast days become five tall cards on desktop and full-width rows
+  on mobile, with a high/low range bar instead of generic tiles.
 - **Palette:** deep midnight navy backgrounds, charcoal glass, a single cool accent and a
   restrained warm highlight. Light mode is a soft daylight variant of the same tokens,
   selected by `prefers-color-scheme`; dark is the primary identity.
 - **Glass:** low-opacity panels (`--glass-bg`), one highlight line
   (`--glass-highlight`), hairline borders and large soft shadows. Backdrop blur is dropped
   below 480 px where it is most expensive, replaced by a more opaque fill.
-- **Type:** light-weight display temperature (`font-weight: 200`, tight tracking, tabular
-  numerals), small uppercase labels, and a measured hierarchy; all body text keeps the
-  contrast fixes from earlier checkpoints.
-- **Spacing:** consistent 4 px-based scale, generous panel padding from 768 px, and a
-  mobile-first single column at 375 px.
+- **Type:** light-weight display temperature (tight tracking, tabular numerals), small
+  uppercase labels and a measured hierarchy; all body text keeps the contrast fixes from
+  earlier checkpoints.
+- **Supporting pages:** `#/about`, `#/privacy` and `#/terms` share an editorial reading
+  layout. They describe only what the app actually does, name the external data and
+  hosting providers honestly, and avoid invented legal guarantees.
+- **Spacing:** consistent 4 px-based scale, generous panel padding from 768 px, and an
+  intentionally composed single column at 375 px.
 
 ### Weather-reactive atmosphere
 
@@ -302,6 +323,22 @@ The layer is `aria-hidden`, `pointer-events: none` and `position: fixed`, so it 
 loading or interaction. All animation is CSS `transform`/`opacity` (plus a paint-only rain
 translation) and every animation is disabled under `prefers-reduced-motion: reduce`, while
 the scene itself stays visible.
+
+### Liquid surface
+
+`src/components/LiquidSurface.tsx` draws the approved liquid backdrop with a small WebGL
+fragment shader: four octaves of value noise build a slow flowing field, and each of the
+condition variants (`clear`, `partly`, `cloudy`, `rain`, `storm`, `snow`, `fog`, `wind`,
+`ambient`) has its own dark, light and night palette. The scene is driven only by
+`atmosphereFromIcon()` and `isNightScene()` from the normalised snapshot passed by
+`WeatherDashboard`; there is no demo weather or fallback fixture in the production path.
+
+Palette changes cross-fade rather than snap, canvas resolution is capped by viewport and
+DPR (1.6 DPR, 0.62/0.72 render density, 1600 px maximum width), and drawing is capped at
+30 fps. The loop pauses while the document is hidden and the shader freezes under
+`prefers-reduced-motion: reduce` (CSS overlays stop too). If WebGL is unavailable, the CSS
+atmosphere layers remain as the visible fallback. The canvas is decorative, `aria-hidden`
+and `pointer-events: none`.
 
 ## Verification
 
@@ -519,7 +556,76 @@ Screenshots: `c9-375-dashboard.png`, `c9-768-dashboard.png`, `c9-1280-dashboard.
 `c9-1280-dashboard-light.png`, `c9-1280-empty-light.png`, `c9-1280-error-dark.png`,
 `c9-focus-1280.png`.
 
-### Push reminders (C8) — feasibility only, deliberately not implemented
+### C13 — premium frontend redesign
+
+The redesign was implemented in place. No API, Worker, provider, PWA, storage or test
+contract changed; the existing 170 tests continued to pass, with one new test for the
+hash-route helper (171 across 17 files).
+
+**Checks:** `npm run typecheck` clean, `npm run lint` 0 warnings / 0 errors, `npm test`
+171/171, `npm run build` succeeded (JS 272.59 kB, CSS 49.86 kB, 10-entry service-worker
+precache).
+
+**Real-browser QA:** the production deployment was opened in Chromium after clearing the
+old service worker, at 1280 × 900 (dark and light), 768 × 1024 (dark) and 375 × 812 (dark
+and light). Live Open-Meteo data loaded (`/api/weather` 200), the document, CSS, JS and
+manifest all returned 200, the console was empty, and `documentElement.scrollWidth` never
+exceeded the viewport. The sidebar became a sticky column at 1280 and an off-canvas drawer
+at 375; About/Privacy/Terms routing, the active navigation state, search, °C/°F conversion,
+favourites add/remove and the labelled cached-offline banner were exercised in the
+production build.
+
+Screenshots: `artifacts/c13-1280-dark.png`, `c13-1280-light.png`, `c13-768-dark.png`,
+`c13-375-dark.png`, `c13-375-light.png`, `c13-375-nav.png`, `c13-1280-empty.png`,
+`c13-1280-about.png`.
+
+#### C14 — liquid-motion release
+
+The approved liquid direction was integrated into the real React + TypeScript app; the
+static demo preview was not copied over it. The live Open-Meteo snapshot drives the
+atmosphere, including the clear-night palette and moon for Karachi at verification time.
+
+**Checks:** `npm ci` succeeded (132 packages, 0 vulnerabilities); `npm run typecheck` clean;
+`npm run lint` 0 warnings / 0 errors across 72 files; `npm test` **171/171 across 17 files**;
+`npm run build` succeeded (JS 281.28 kB, CSS 79.43 kB, 10-entry service-worker precache,
+cache `weatherboard-shell-0ec79e8ee685`).
+
+**Real-browser QA:** the built Worker/asset app was exercised at **375 × 812**,
+**768 × 1024** and **1280 × 900** in Chromium. It loaded live data, exposed five autocomplete
+results, selected Karachi by pointer, rendered 26 °C / *Clear night*, converted to 78 °F and
+back, saved the city (`1/5`) and restored it after reload. Five forecast days, the PWA
+manifest, three icons, the active service worker and all ten shell-cache entries were
+present. `documentElement.scrollWidth === clientWidth` at every breakpoint. There were no
+page errors or failed requests.
+
+The production URL was then opened in a **fresh browser context** (no prior storage or
+service worker): `/api/weather` returned Open-Meteo at 25.7 °C, the dashboard rendered
+26 °C, search returned five live results, favourites, units and persistence worked, and the
+new service worker controlled the page.
+
+One integration bug was found and fixed: the overview intro's isolation created a stacking
+context that let the empty panel paint above the autocomplete sheet, so visible suggestions
+could not be clicked. The intro now sits above the panel while keeping its own background
+isolation. Reduced motion was rechecked with emulation: aurora, star, moon and sheen
+animations report `none`, and two viewport captures 900 ms apart are byte-identical.
+
+**Remaining limitations:** OpenWeatherMap and GeoDB still have no credentials here, so live
+traffic uses the keyless Open-Meteo weather and geocoding fallbacks; those providers remain
+fixture-tested only. C8 Web Push is not implemented. Only a clear night was live at the time
+of capture, so other condition palettes are covered by tests rather than fresh screenshots.
+The cloud browser's network emulation still leaves `navigator.onLine` true; the offline UI
+was verified by blocking `/api/*` and dispatching the offline event, which produced the
+*Offline* banner and the timestamped cached forecast, and the service-worker shell cache was
+inspected directly. The fresh production context was incognito, so Chrome reported
+`in-incognito` as the only installability blocker; a non-incognito local run reported none.
+
+Release captures kept out of the repository to keep it light:
+`artifacts/release-mobile-live-dark.png`,
+`release-tablet-live-dark.png`, `release-desktop-live-dark-full.png`,
+`release-offline-1280.png`, `production-fresh-1280.png`, `production-fresh-375.png`, and the
+motion recording `release-liquid-motion.gif`.
+
+## Push reminders (C8) — feasibility only, deliberately not implemented
 
 The challenge requires a reminder that arrives when the browser is closed, which means real
 Web Push. That was investigated and **not built**, because the pieces that make it real do
@@ -565,14 +671,17 @@ weather fallback and the last-resort geocoder.
 
 ## Deployment
 
-**Status: deployed and verified on Freebuff Sites.**
+**Status: deployed and verified on Freebuff Sites (13 November 2026).**
 
 - **Live URL:** https://site-6950d0e66c3045dcaf9775b88d7b4242.freebuff.page
-- **Verified:** the production URL was opened in Chromium — live Open-Meteo weather loaded,
-  city search returned results, a city was saved and restored after reload, the manifest
-  parsed with no errors, installability returned `[]`, the service worker was activated and
-  controlling, and an offline reload rendered the labelled cached forecast. No console or
-  network errors during those flows.
+- **Verified:** the production URL was opened in a fresh Chromium context — live Open-Meteo
+  weather loaded, city search returned five results, pointer selection worked, a city was
+  saved and restored after reload, units converted correctly, five forecast days rendered,
+  the manifest parsed with no errors and the service worker was activated, controlling and
+  holding all ten shell entries. No console or network errors during those flows.
+- **Limitations:** OpenWeatherMap and GeoDB are not configured, so those provider paths are
+  fixture-tested and the live app shows Open-Meteo data. Web Push (C8) is not implemented.
+  See *C14* for the release-specific offline and installability notes.
 - **Configuration:** the same Worker code served locally is bundled and deployed with the
   static `dist/` assets. Because no provider keys are configured in the hosting environment,
   the app serves the Open-Meteo fallback (exactly as it does locally).
@@ -638,6 +747,8 @@ publishing, and the same artifact was checked offline.
 | C10 | Accessibility pass | **done — 0 axe violations in settled dark and light states** |
 | C11 | Clean-install verification, README completion | **done — `npm ci` + build verified; history published** |
 | C12 | Deploy + public repository | **done — deployed and browser-verified; public repository published** |
+| C13 | Premium frontend redesign: shell, overview, supporting pages | **done — typecheck/lint/171 tests/build pass; production verified in real browser at 1280/768/375** |
+| C14 | Liquid-motion release: shader, atmosphere, liquid system | **done — typecheck/lint/171 tests/build pass; production verified at 375/768/1280** |
 
 ## Known limitations
 
@@ -645,8 +756,9 @@ publishing, and the same artifact was checked offline.
   durable store, deploy target or credentials — not because of missing UI code.
 - No cron/scheduler exists on the hosting platform, so the C8 reminder stays blocked even
   with provider keys configured.
-- The public repository was published from a clean six-commit history; the temporary deploy
-  key used to push it was removed immediately after the push.
+- The public repository keeps its existing history. The liquid release was published to
+  `main` through the connected GitHub integration; the production deployment bundles the
+  same verified source and build output.
 - A new deployment needs a reload before the updated service worker takes over; the old
   cache is deleted on activate.
 - There is no custom “Install app” button. Installation uses the browser's own affordance;
@@ -672,7 +784,7 @@ publishing, and the same artifact was checked offline.
   how fresh the data is.
 - The 5-day forecast shows precipitation probability when the provider supplies it;
   sunrise/sunset come from the first forecast day, which is *today* in the city's zone.
-- `wrangler.jsonc` targets Cloudflare's deploy format. Publishing through Freebuff Sites
-  will need a Sites manifest at C12 instead.
+- `wrangler.jsonc` targets Cloudflare's deploy format; the live site is published through
+  Freebuff Sites from the manifest under `sites-build/`.
 - `PROMPTS.md` records only prompts actually sent to the coding agent, and is appended
   as work proceeds.
