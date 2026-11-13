@@ -4,9 +4,13 @@ A weather board built for the Edspire Frontend React challenge: city autocomplet
 current conditions, a 5-day forecast, up to five saved favourites, an installable
 offline-capable PWA, and a daily morning reminder delivered by real Web Push.
 
-> **Status: submission-ready locally — C0–C7 and C9–C11 complete, C8 blocked, C12 prepared.**
-> No public repository and no public deployment exist yet: both need authorisation and
-> credentials that this workspace does not have (see *Deployment*).
+> **Status: deployed and verified.** C0–C7 and C9–C11 complete; C8 (Web Push) blocked.
+>
+> **Live app:** https://site-6950d0e66c3045dcaf9775b88d7b4242.freebuff.page
+> **Repository:** https://github.com/abdullahaliburney/weatherboard
+>
+> The live URL was opened in a real browser and verified (weather, search, favourites,
+> PWA, offline). Background push remains unimplemented — see *Push reminders (C8)*.
 > Working today: debounced autocomplete through the Worker, keyboard and pointer selection,
 > a cinematic weather dashboard with a condition-driven atmosphere, a 5-day forecast,
 > metric/imperial units and refresh, up to five persisted favourites, persisted unit and
@@ -560,9 +564,27 @@ weather fallback and the last-resort geocoder.
 
 ## Deployment
 
-**Status: not deployed. There is no public URL, and this README does not claim one.**
-Build artifacts are deployment-ready; publishing needs credentials and authorisation that
-do not exist in this workspace.
+**Status: deployed and verified on Freebuff Sites.**
+
+- **Live URL:** https://site-6950d0e66c3045dcaf9775b88d7b4242.freebuff.page
+- **Verified:** the production URL was opened in Chromium — live Open-Meteo weather loaded,
+  city search returned results, a city was saved and restored after reload, the manifest
+  parsed with no errors, installability returned `[]`, the service worker was activated and
+  controlling, and an offline reload rendered the labelled cached forecast. No console or
+  network errors during those flows.
+- **Configuration:** the same Worker code served locally is bundled and deployed with the
+  static `dist/` assets. Because no provider keys are configured in the hosting environment,
+  the app serves the Open-Meteo fallback (exactly as it does locally).
+- **Not available there:** no cron trigger, so the C8 reminder cannot run even if keys were
+  added.
+
+### Re-deploying
+
+```bash
+npm ci && npm run build
+npx wrangler deploy --dry-run --outdir /tmp/wb-worker
+# bundle /tmp/wb-worker/index.js + sites entry, then deploy through Freebuff Sites
+```
 
 ### Option A — Cloudflare Workers (matches `wrangler.jsonc`)
 
@@ -614,16 +636,17 @@ which are intentionally not presented as the final deployment.
 | C9 | Responsive verification at 375 / 768 / 1280 | **done — keyboard, axe and interaction QA; see C9 QA** |
 | C10 | Accessibility pass | **done — 0 axe violations in settled dark and light states** |
 | C11 | Clean-install verification, README completion | **done — `npm ci` + build verified; local history prepared** |
-| C12 | Deploy + public repository (authorisation required) | **prepared, not published — credentials/authorisation missing** |
+| C12 | Deploy + public repository | **deployed and browser-verified; repository created, push blocked on git credentials** |
 
 ## Known limitations
 
 - The morning push reminder is still not built (C8), because there is no scheduler,
   durable store, deploy target or credentials — not because of missing UI code.
-- No public repository and no public deployment: `.git` has a local history only, and no
-  remote is configured. Publishing needs an explicit repository name/visibility and an
-  authorised push; deployment needs a Cloudflare login/API token or approval to deploy via
-  Freebuff Sites.
+- The GitHub repository exists but is still empty: this VM has no GitHub git credentials
+  (`gh` unauthenticated, no credential helper), so the verified commits could not be pushed.
+  Adding a write-enabled deploy key or running the push from an authenticated machine is
+  the only outstanding step.
+- No cron/scheduler exists on the hosting platform, so the C8 reminder stays blocked.
 - A new deployment needs a reload before the updated service worker takes over; the old
   cache is deleted on activate.
 - There is no custom “Install app” button. Installation uses the browser's own affordance;
