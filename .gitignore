@@ -36,3 +36,6 @@ pnpm-debug.log*
 
 # Local Worker secrets (never commit)
 .dev.vars
+
+# Generated Freebuff Sites bundle
+sites-build

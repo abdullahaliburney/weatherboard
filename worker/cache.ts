@@ -15,7 +15,15 @@ export async function withCache(
 ): Promise<Response> {
   const cacheRequest = new Request(key, { method: 'GET' })
   if (!options.bypass) {
-    const hit = await deps.cache.match(cacheRequest)
+    // Some runtimes (for example a Worker without cache permission) throw on
+    // `match` instead of returning a miss. Caching is an optimisation, so an
+    // unavailable cache must degrade to a normal upstream request.
+    let hit: Response | undefined
+    try {
+      hit = await deps.cache.match(cacheRequest)
+    } catch {
+      hit = undefined
+    }
     if (hit) return withCacheStatus(hit, 'HIT', cors)
   }
 

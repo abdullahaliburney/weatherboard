@@ -178,6 +178,28 @@ describe('CORS', () => {
     expect(second.headers.get('access-control-allow-origin')).toBe('https://b.test')
     await second.text()
   })
+
+  it('serves live data when the cache is unavailable', async () => {
+    const unavailable: CacheLike = {
+      async match() {
+        throw new Error('This Worker is not permitted to access the default cache.')
+      },
+      async put() {
+        throw new Error('This Worker is not permitted to access the default cache.')
+      },
+    }
+    const { app } = makeApp({
+      cache: unavailable as FakeCache,
+      handler: (url) =>
+        url.host === 'api.open-meteo.com' ? jsonResponse(openMeteoWeatherFixture) : jsonResponse({}, 404),
+    })
+
+    const response = await app(get('/api/weather?lat=24.86&lon=67.01'))
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-weatherboard-cache')).toBe('MISS')
+    expect((await readJson<{ provider: string }>(response)).provider).toBe('open-meteo')
+  })
 })
 
 describe('GET /api/cities validation', () => {
