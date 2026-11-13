@@ -81,14 +81,23 @@ export function formatTimeInZone(
   return new Intl.DateTimeFormat('en-GB', { ...options, timeZone: 'UTC' }).format(shifted)
 }
 
-/** Human time for "last updated", in the viewer's own timezone. */
-export function formatUpdatedAt(timestamp: number | null): string | null {
+/** Human time for "last updated", in the city's timezone when one is known. */
+export function formatUpdatedAt(timestamp: number | null, timeZone?: string | null): string | null {
   if (timestamp === null) return null
-  return new Intl.DateTimeFormat('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(new Date(timestamp))
+  try {
+    return new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      ...(timeZone ? { timeZone } : {}),
+    }).format(new Date(timestamp))
+  } catch {
+    return new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(new Date(timestamp))
+  }
 }
 
 export function providerLabel(provider: string): string {
