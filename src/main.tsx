@@ -4,6 +4,7 @@ import App from './App'
 import { registerServiceWorker } from './pwa/register'
 import './styles/tokens.css'
 import './styles/global.css'
+import './styles/liquid.css'
 
 const rootElement = document.getElementById('root')
 

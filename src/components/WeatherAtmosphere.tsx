@@ -1,5 +1,6 @@
 import type { WeatherIconKey } from '../api/weather'
 import { atmosphereFromIcon, isNightScene } from '../lib/atmosphere'
+import LiquidSurface from './LiquidSurface'
 import './WeatherAtmosphere.css'
 
 export interface WeatherAtmosphereProps {
@@ -12,8 +13,8 @@ export interface WeatherAtmosphereProps {
 // Deterministic particle fields: no Math.random, so SSR/tests/renders are stable.
 const STARS = Array.from({ length: 34 }, (_, index) => ({
   left: (index * 37.6 + 11) % 100,
-  top: (index * 53.3 + 5) % 58,
-  size: index % 6 === 0 ? 2 : 1,
+  top: (index * 53.3 + 4) % 38,
+  size: index % 9 === 0 ? 3 : 2,
   delay: (index * 1.7) % 9,
   duration: 4 + (index % 6),
 }))
@@ -45,6 +46,10 @@ export default function WeatherAtmosphere({ icon, isDay = true }: WeatherAtmosph
       data-night={night ? 'true' : 'false'}
       aria-hidden="true"
     >
+      <LiquidSurface variant={variant} night={night} />
+      <div className="atmosphere__aurora" />
+      <div className="atmosphere__sheen" />
+
       {night && (
         <div className="atmosphere__stars">
           {STARS.map((star, index) => (
@@ -113,6 +118,9 @@ export default function WeatherAtmosphere({ icon, isDay = true }: WeatherAtmosph
           <span className="atmosphere__gust atmosphere__gust--three" />
         </div>
       )}
+
+      <div className="atmosphere__horizon" />
+      <div className="atmosphere__grain" />
     </div>
   )
 }
