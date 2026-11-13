@@ -1,37 +1,42 @@
 /* Design tokens. Single source of truth for colour, spacing, type and motion.
-   Dark-first: deep midnight navy glass with a soft daylight variant. */
+   Dark-first: a deep, cinematic midnight palette with a soft daylight variant.
+   Token names stay stable so components keep one vocabulary. */
 
 :root {
   color-scheme: dark light;
 
-  /* Colour — midnight navy + charcoal glass. */
-  --color-bg: #050a13;
-  --color-bg-elevated: #0b1524;
-  --color-bg-sunken: #030711;
-  --color-surface: rgb(255 255 255 / 4.5%);
-  --color-surface-strong: rgb(255 255 255 / 8.5%);
-  --color-border: rgb(255 255 255 / 10%);
-  --color-border-strong: rgb(255 255 255 / 20%);
-  --color-text: #eaf2ff;
-  --color-text-muted: #a7b8cf;
-  /* Clears 4.5:1 on the midnight background at small sizes. */
-  --color-text-subtle: #92a6c0;
-  --color-accent: #8cc4ff;
-  --color-accent-strong: #5aa9ff;
-  --color-accent-contrast: #04131f;
-  --color-warm: #ffc27d;
-  --color-danger: #ff9d9d;
-  --color-danger-bg: rgb(255 122 122 / 14%);
-  --color-success: #6ee0b0;
+  /* Colour — deep midnight with cool glass and a restrained warm accent. */
+  --color-bg: #060a11;
+  --color-bg-elevated: #0b111b;
+  --color-bg-sunken: #04070c;
+  --color-surface: rgb(255 255 255 / 4%);
+  --color-surface-strong: rgb(255 255 255 / 8%);
+  --color-border: rgb(255 255 255 / 9%);
+  --color-border-strong: rgb(255 255 255 / 18%);
+  --color-text: #f1f5fb;
+  --color-text-muted: #aab7c9;
+  --color-text-subtle: #8b9bb1;
+  --color-accent: #9cc9ff;
+  --color-accent-strong: #6fb2ff;
+  --color-accent-contrast: #04121f;
+  --color-warm: #f3c690;
+  --color-danger: #ffa5a5;
+  --color-danger-bg: rgb(255 122 122 / 12%);
+  --color-success: #79e0b7;
   --color-focus: #bcdcff;
 
-  /* Glass. Deliberately restrained: one highlight line, low-opacity borders. */
-  --glass-bg: rgb(13 24 40 / 62%);
-  --glass-bg-strong: rgb(14 27 46 / 80%);
-  --glass-border: rgb(255 255 255 / 9%);
-  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 7%);
-  --glass-blur: 18px;
-  --glass-blur-sm: 10px;
+  /* Panels. One highlight line, hairline borders, no heavy chrome. */
+  --glass-bg: rgb(13 20 31 / 64%);
+  --glass-bg-strong: rgb(14 21 33 / 86%);
+  --glass-border: rgb(255 255 255 / 8%);
+  --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 6%);
+  --glass-blur: 22px;
+  --glass-blur-sm: 12px;
+
+  /* Atmospheric gradients (used by the shell and the weather hero). */
+  --scene-cool: rgb(88 148 232 / 16%);
+  --scene-warm: rgb(243 198 144 / 12%);
+  --scene-shadow: rgb(0 0 0 / 46%);
 
   /* Spacing scale (4px base). */
   --space-1: 0.25rem;
@@ -41,57 +46,77 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
   --space-7: 3rem;
+  --space-8: 4rem;
 
   /* Radii. */
+  --radius-xs: 8px;
   --radius-sm: 10px;
   --radius-md: 16px;
-  --radius-lg: 26px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
   --radius-pill: 999px;
 
-  /* Typography. */
-  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  /* Typography. System faces only: no network font, so the PWA works offline. */
+  --font-sans: 'Inter', 'SF Pro Display', 'Segoe UI Variable Text', 'Segoe UI', system-ui,
+    -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'SF Pro Display', 'Inter', 'Segoe UI Variable Display', 'Segoe UI', system-ui,
+    -apple-system, sans-serif;
   --font-mono: 'SFMono-Regular', ui-monospace, 'Cascadia Mono', Menlo, monospace;
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.5rem;
-  --text-2xl: 2rem;
-  --text-hero: clamp(3.75rem, 13vw, 6.25rem);
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.5rem;
+  --text-hero: clamp(4.25rem, 9vw, 7.75rem);
+  --tracking-label: 0.16em;
 
   /* Elevation and motion. */
-  --shadow-card: 0 28px 70px rgb(1 4 10 / 55%);
-  --shadow-raised: 0 14px 34px rgb(1 4 10 / 45%);
-  --transition-fast: 140ms ease;
-  --transition-base: 240ms ease;
+  --shadow-card: 0 32px 80px rgb(0 0 0 / 48%);
+  --shadow-raised: 0 14px 38px rgb(0 0 0 / 38%);
+  --shadow-soft: 0 8px 24px rgb(0 0 0 / 24%);
+  --transition-fast: 150ms ease;
+  --transition-base: 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  --transition-slow: 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Layout. */
-  --content-max: 1180px;
+  --content-max: 1320px;
+  --sidebar-w: 274px;
+  --gutter: var(--space-5);
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --color-bg: #e8eef8;
+    --color-bg: #edf1f7;
     --color-bg-elevated: #ffffff;
-    --color-bg-sunken: #dde6f4;
-    --color-surface: rgb(10 22 38 / 3.5%);
-    --color-surface-strong: rgb(10 22 38 / 7%);
-    --color-border: rgb(10 22 38 / 11%);
-    --color-border-strong: rgb(10 22 38 / 24%);
-    --color-text: #0a1524;
-    --color-text-muted: #3f5372;
-    /* Clears 4.5:1 on the daylight background at small sizes. */
-    --color-text-subtle: #4f6383;
-    --color-accent: #0f5fbe;
-    --color-accent-strong: #0b4c9b;
+    --color-bg-sunken: #e2e8f2;
+    --color-surface: rgb(12 24 40 / 3%);
+    --color-surface-strong: rgb(12 24 40 / 6%);
+    --color-border: rgb(12 24 40 / 10%);
+    --color-border-strong: rgb(12 24 40 / 22%);
+    --color-text: #0c1622;
+    --color-text-muted: #46566c;
+    --color-text-subtle: #5d6d84;
+    --color-accent: #155fa8;
+    --color-accent-strong: #0d4b88;
     --color-accent-contrast: #ffffff;
-    --color-focus: #0f5fbe;
-    --glass-bg: rgb(255 255 255 / 66%);
-    --glass-bg-strong: rgb(255 255 255 / 84%);
-    --glass-border: rgb(10 22 38 / 10%);
-    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 80%);
-    --shadow-card: 0 26px 60px rgb(24 44 74 / 14%);
-    --shadow-raised: 0 12px 28px rgb(24 44 74 / 10%);
+    --color-warm: #b4762a;
+    --color-danger: #b3261e;
+    --color-danger-bg: rgb(179 38 30 / 8%);
+    --color-focus: #155fa8;
+
+    --glass-bg: rgb(255 255 255 / 74%);
+    --glass-bg-strong: rgb(255 255 255 / 92%);
+    --glass-border: rgb(12 24 40 / 9%);
+    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 90%);
+    --scene-cool: rgb(78 132 204 / 14%);
+    --scene-warm: rgb(214 164 96 / 16%);
+    --scene-shadow: rgb(30 51 79 / 12%);
+    --shadow-card: 0 30px 70px rgb(28 45 70 / 13%);
+    --shadow-raised: 0 14px 32px rgb(28 45 70 / 10%);
+    --shadow-soft: 0 6px 18px rgb(28 45 70 / 7%);
   }
 }
 
@@ -99,5 +124,6 @@
   :root {
     --transition-fast: 0ms;
     --transition-base: 0ms;
+    --transition-slow: 0ms;
   }
 }
