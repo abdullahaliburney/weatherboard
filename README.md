@@ -1,8 +1,9 @@
 # WeatherBoard
 
 A weather board built for the Edspire Frontend React challenge: city autocomplete,
-current conditions, a 5-day forecast, up to five saved favourites, an installable
-offline-capable PWA, and a daily morning reminder delivered by real Web Push.
+current conditions, a 5-day forecast, up to five saved favourites, and an installable
+offline-capable PWA. The daily morning reminder was scoped (C8) but is not implemented;
+the README says so plainly rather than implying a working notification feature.
 
 > **Status: deployed and verified.** C0–C7 and C9–C11 complete; C8 (Web Push) blocked.
 >
@@ -528,11 +529,11 @@ not exist in this workspace:
 |---|---|
 | Browser `PushSubscription` | Implementable, but needs a public VAPID key and a server to receive it |
 | VAPID key pair | Not configured; can be generated locally, but nothing would send |
-| Durable subscription storage | No database provisioned. Freebuff Sites could supply D1, but no site exists and deploying needs authorisation |
+| Durable subscription storage | No database provisioned. Freebuff Sites could supply D1, but subscriptions were never built, so none is provisioned |
 | Server-side sender | No deployed server with credentials to run one |
 | Scheduled trigger | **Unavailable.** Freebuff Sites deploys Workers with fetch handlers but exposes no cron triggers; `wrangler whoami` reports no Cloudflare account in this environment |
 | Service-worker `push` / `notificationclick` | Could be written safely, but without a sender it can never deliver — that would be the fake feature the brief forbids |
-| Stable HTTPS origin | Only rotating preview hostnames; a production URL is not configured |
+| Stable HTTPS origin | Yes — the live Freebuff Sites URL above. It still has no scheduler, so this alone does not unblock C8 |
 
 What would unblock it: an authorised deployment target with a scheduler (a Cloudflare
 account plus `wrangler login`/API token and a Cron Trigger, or any host with scheduled jobs),
@@ -603,22 +604,22 @@ cron triggers, which C8 would need; this project does not use one yet.
 `npx wrangler deploy --dry-run` is used by the project's QA to prove the Worker bundles
 without needing an account.
 
-### Option B — Freebuff Sites
+### Option B — Freebuff Sites (used for the live deployment)
 
-Static assets plus a fetch-handler Worker, no cron and no Node server. This project's
-Wrangler assets+Worker layout would need a Sites manifest and a deploy from an authorised
-session; the platform URL is not a production domain for push subscriptions. Not done.
+Static assets plus a fetch-handler Worker, no cron and no Node server. This is how the
+live URL above was published: `dist/` is served as assets, `/api/*` is routed to the
+bundled Worker, and the environment has no provider keys, so the Open-Meteo fallback
+answers (exactly as it does locally). The deployment was browser-verified after
+publishing, and the same artifact was checked offline.
 
-### What is missing for a real deployment
+### What still needs credentials
 
-- A Cloudflare account login / API token **with authorisation to publish**, or approval to
-  deploy through Freebuff Sites.
-- Provider keys entered as Worker secrets (never committed, never in chat).
-- The final origin, so `ALLOWED_ORIGINS` can be set to it and the 403 CORS guard keeps
-  working.
-
-Until those exist, the only URLs that have served this app are rotating preview hosts,
-which are intentionally not presented as the final deployment.
+- Provider keys entered as Worker secrets (never committed, never in chat) to exercise the
+  primary OpenWeatherMap path and GeoDB autocomplete instead of the Open-Meteo fallback.
+- A Cloudflare account login / API token if the project should move to Option A; the
+  deployed origin would then also be set in `ALLOWED_ORIGINS`.
+- A scheduler and a durable subscription store for C8; without them the morning reminder
+  cannot run, so it is not claimed as working.
 
 ## Checkpoints
 
@@ -635,18 +636,17 @@ which are intentionally not presented as the final deployment.
 | C8 | Web Push morning reminder (+ cron worker) | **blocked — no scheduler/deploy target/credentials; see feasibility above** |
 | C9 | Responsive verification at 375 / 768 / 1280 | **done — keyboard, axe and interaction QA; see C9 QA** |
 | C10 | Accessibility pass | **done — 0 axe violations in settled dark and light states** |
-| C11 | Clean-install verification, README completion | **done — `npm ci` + build verified; local history prepared** |
-| C12 | Deploy + public repository | **deployed and browser-verified; repository created, push blocked on git credentials** |
+| C11 | Clean-install verification, README completion | **done — `npm ci` + build verified; history published** |
+| C12 | Deploy + public repository | **done — deployed and browser-verified; public repository published** |
 
 ## Known limitations
 
 - The morning push reminder is still not built (C8), because there is no scheduler,
   durable store, deploy target or credentials — not because of missing UI code.
-- The GitHub repository exists but is still empty: this VM has no GitHub git credentials
-  (`gh` unauthenticated, no credential helper), so the verified commits could not be pushed.
-  Adding a write-enabled deploy key or running the push from an authenticated machine is
-  the only outstanding step.
-- No cron/scheduler exists on the hosting platform, so the C8 reminder stays blocked.
+- No cron/scheduler exists on the hosting platform, so the C8 reminder stays blocked even
+  with provider keys configured.
+- The public repository was published from a clean six-commit history; the temporary deploy
+  key used to push it was removed immediately after the push.
 - A new deployment needs a reload before the updated service worker takes over; the old
   cache is deleted on activate.
 - There is no custom “Install app” button. Installation uses the browser's own affordance;
